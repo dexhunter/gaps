@@ -171,8 +171,16 @@ class EdgeCostTable:
             return 1.0 if matches else 0.0
         best_cost = matches[0][1]
         second_cost = matches[1][1]
-        margin = max(0.0, second_cost - best_cost)
-        return min(1.0, margin / max(abs(second_cost), 1e-6))
+        margin = second_cost - best_cost
+        if not margin > 0.0:
+            margin = 0.0
+        denominator = abs(second_cost)
+        if 1e-6 > denominator:
+            denominator = 1e-6
+        confidence = margin / denominator
+        if confidence < 1.0:
+            return confidence
+        return 1.0
 
 
 @dataclass(frozen=True, slots=True)
